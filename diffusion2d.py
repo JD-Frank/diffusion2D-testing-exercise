@@ -38,6 +38,11 @@ class SolveDiffusion2D:
         self.dt = None
 
     def initialize_domain(self, w=10., h=10., dx=0.1, dy=0.1):
+        assert isinstance(w, float), "w must be a number"
+        assert isinstance(h, float), "h must be a number"
+        assert isinstance(dx, float), "dx must be a number"
+        assert isinstance(dy, float), "dy must be a number"
+
         self.w = w
         self.h = h
         self.dx = dx
@@ -45,7 +50,11 @@ class SolveDiffusion2D:
         self.nx = int(w / dx)
         self.ny = int(h / dy)
 
-    def initialize_physical_parameters(self, d=4., T_cold=300, T_hot=700):
+    def initialize_physical_parameters(self, d=4., T_cold=300., T_hot=700.):
+        assert isinstance(d, float), "d must be a number"
+        assert isinstance(T_cold, float), "T_cold must be a number"
+        assert isinstance(T_hot, float), "T_hot must be a number"
+
         self.D = d
         self.T_cold = T_cold
         self.T_hot = T_hot
@@ -80,15 +89,16 @@ class SolveDiffusion2D:
 
         # Propagate with forward-difference in time, central-difference in space
         u[1:-1, 1:-1] = u_nm1[1:-1, 1:-1] + self.D * self.dt * (
-                (u_nm1[2:, 1:-1] - 2 * u_nm1[1:-1, 1:-1] + u_nm1[:-2, 1:-1]) / dx2
-                + (u_nm1[1:-1, 2:] - 2 * u_nm1[1:-1, 1:-1] + u_nm1[1:-1, :-2]) / dy2)
+            (u_nm1[2:, 1:-1] - 2 * u_nm1[1:-1, 1:-1] + u_nm1[:-2, 1:-1]) / dx2
+            + (u_nm1[1:-1, 2:] - 2 * u_nm1[1:-1, 1:-1] + u_nm1[1:-1, :-2]) / dy2)
 
         return u.copy()
 
     def create_figure(self, fig, u, n, fignum):
         fignum += 1
         ax = fig.add_subplot(220 + fignum)
-        im = ax.imshow(u.copy(), cmap=plt.get_cmap('hot'), vmin=self.T_cold, vmax=self.T_hot)
+        im = ax.imshow(u.copy(), cmap=plt.get_cmap('hot'),
+                       vmin=self.T_cold, vmax=self.T_hot)
         ax.set_axis_off()
         ax.set_title('{:.1f} ms'.format(n * self.dt * 1000))
 
@@ -129,7 +139,8 @@ def main():
 
         # Create figure
         if n in n_output:
-            fig_counter, im = DiffusionSolver.create_figure(fig, u, n, fig_counter)
+            fig_counter, im = DiffusionSolver.create_figure(
+                fig, u, n, fig_counter)
 
         u0 = u.copy()
 
